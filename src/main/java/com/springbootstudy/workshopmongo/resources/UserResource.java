@@ -1,5 +1,6 @@
 package com.springbootstudy.workshopmongo.resources;
 
+import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -7,8 +8,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.springbootstudy.workshopmongo.domain.User;
 import com.springbootstudy.workshopmongo.dto.UserDto;
@@ -34,5 +38,16 @@ public class UserResource {
 		User user = userService.findById(id);		
 		
 		return ResponseEntity.ok(new UserDto(user));
+	}
+	
+	//Another way to map a route 
+	@RequestMapping(method=RequestMethod.POST)
+	public ResponseEntity<Void> insert(@RequestBody UserDto userDto){
+		User obj = userService.fromDto(userDto);
+		obj = userService.insert(obj);
+		
+		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(obj.getId()).toUri();
+		
+		return ResponseEntity.created(uri).build();
 	}
 }
